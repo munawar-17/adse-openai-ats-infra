@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: adse-postgres
+    environment:
+      POSTGRES_USER: adse
+      POSTGRES_PASSWORD: adse
+      POSTGRES_DB: adse
+    ports:
+      - "5432:5432"
+    volumes:
+      - adse_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adse -d adse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: adse-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  adse_postgres_data:
+
