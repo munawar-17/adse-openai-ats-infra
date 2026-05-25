@@ -209,7 +209,7 @@ After editing LinkedIn values, restart the backend. Open Discovery, use the Link
 The ATS supports two phone screen paths:
 
 - Recruiter call: free local workflow. The recruiter calls the candidate, follows the generated script, enters notes, then submits a human decision.
-- Bot call: development mock by default, or real outbound phone calls when Twilio is configured.
+- Bot call: development mock by default, or real outbound phone calls when Vapi is configured.
 
 Local/dev defaults:
 
@@ -224,13 +224,32 @@ PHONE_SCREEN_MIN_SCORE_TO_PASS=70
 For real outbound calls, expose the backend with a public HTTPS URL and set:
 
 ```env
-VOICE_PROVIDER=twilio
-VOICE_AGENT_PROVIDER=openai_realtime
-TWILIO_ACCOUNT_SID=your-twilio-account-sid
-TWILIO_AUTH_TOKEN=your-twilio-auth-token
-TWILIO_FROM_PHONE=+15551234567
-TWILIO_VOICE_WEBHOOK_BASE_URL=https://your-public-backend-url
+VOICE_PROVIDER=vapi
+VOICE_AGENT_PROVIDER=vapi
+VAPI_API_KEY=your-vapi-api-key
+VAPI_PHONE_NUMBER_ID=your-vapi-phone-number-id
+VAPI_WEBHOOK_BASE_URL=https://your-public-backend-url
+VAPI_WEBHOOK_BEARER_TOKEN=your-shared-webhook-token
+VAPI_SERVER_CREDENTIAL_ID=your-vapi-server-credential-id
+VAPI_API_BASE_URL=https://api.vapi.ai
+VAPI_MODEL_PROVIDER=anthropic
+VAPI_MODEL=claude-haiku-4-5-20251001
+VAPI_MODEL_MAX_TOKENS=250
+VAPI_VOICE_PROVIDER=11labs
+VAPI_VOICE_ID=dN8hviqdNrAsEcL57yFj
+VAPI_VOICE_MODEL=eleven_turbo_v2_5
+VAPI_TRANSCRIBER_PROVIDER=deepgram
+VAPI_TRANSCRIBER_MODEL=flux-general-en
+VAPI_TRANSCRIBER_LANGUAGE=en
+VAPI_START_WAIT_SECONDS=0.4
+VAPI_SMART_ENDPOINTING_PROVIDER=livekit
+VAPI_SMART_ENDPOINTING_WAIT_FUNCTION=2000 / (1 + exp(-10 * (x - 0.5)))
+VAPI_STOP_NUM_WORDS=0
+VAPI_STOP_VOICE_SECONDS=0.2
+VAPI_STOP_BACKOFF_SECONDS=1
 ```
+
+Create the Vapi server credential in the Vapi dashboard and point it at the same bearer token you set in `VAPI_WEBHOOK_BEARER_TOKEN`. ATS creates a Vapi assistant per phone-screen session using the model, voice, transcriber, and speaking-plan settings above, places the outbound call through `VAPI_PHONE_NUMBER_ID`, and receives events at `/api/v1/voice/vapi/phone-screen/{session_id}/webhook`.
 
 Assessment invites are gated behind a passed phone screen. Either recruiter-call or bot-call mode can satisfy that gate, but a recruiter must still click `Pass` before CodeForge assessment links can be sent.
 
